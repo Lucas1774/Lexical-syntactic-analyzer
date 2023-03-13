@@ -1,0 +1,21 @@
+-- variables y aritmetica simple 
+
+procedure testCase04 () is
+
+	x: Integer;
+	t: Boolean;
+
+begin
+
+	Put_line("VARIABLES Y ARITMETICA SIMPLE");
+
+        x := 2-1;
+        Put_line("x(1):");
+        Put_line(x);
+
+	t := True;
+        Put_line("t(true):");
+        Put_line(t);
+
+
+end testCase04;

@@ -1,0 +1,28 @@
+-- funciones paso por referencia
+
+
+procedure testCase06 () is
+
+z: Integer;
+
+a,b: Integer;
+
+function resta (x,y: out Integer) return Integer is
+begin
+		
+	return x-y;	
+
+end resta;
+
+
+begin
+
+	Put_line ("SUBPROGRAMAS FUNCIONES");
+	a:= 5;
+	b:= 3;
+	z:= resta (a,b);
+	Put_line("z(2):");
+	Put_line(z);
+			
+
+end testCase06;

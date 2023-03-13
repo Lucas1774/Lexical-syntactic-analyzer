@@ -1,0 +1,235 @@
+package compiler.syntax;
+
+// Declaracion de importaciones 
+//(No modificar las proporcionadas. Se pueden agregar mas)
+
+import java_cup.runtime.Symbol;
+import java.util.*;
+
+import es.uned.lsi.compiler.lexical.*;
+import es.uned.lsi.compiler.code.*;
+import es.uned.lsi.compiler.intermediate.*;
+import es.uned.lsi.compiler.semantic.*;
+import es.uned.lsi.compiler.semantic.symbol.*;
+import es.uned.lsi.compiler.semantic.type.*;
+import es.uned.lsi.compiler.syntax.*;
+
+import compiler.CompilerContext;
+import compiler.lexical.*;
+import compiler.syntax.nonTerminal.*;
+
+import compiler.semantic.symbol.*;
+import compiler.semantic.type.*;
+import compiler.intermediate.*;
+import compiler.code.*;
+
+// Declaracion del codigo de usuario
+
+action code {:
+	
+	SyntaxErrorManager   syntaxErrorManager   = CompilerContext.getSyntaxErrorManager();
+	SemanticErrorManager semanticErrorManager = CompilerContext.getSemanticErrorManager ();
+	ScopeManagerIF       scopeManager         = CompilerContext.getScopeManager ();
+	FinalCodeFactoryIF   finalCodeFactory     = CompilerContext.getFinalCodeFactory ();
+
+:}	
+
+parser code {:
+	SyntaxErrorManager syntaxErrorManager = CompilerContext.getSyntaxErrorManager();
+	
+	public void syntax_error(Symbol symbol)
+	{ 
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxError ("Error sintactico", token);	    
+	}
+		
+	public void unrecovered_syntax_error(java_cup.runtime.Symbol symbol)
+	{	
+	    Token token = (Token) symbol.value;
+	    syntaxErrorManager.syntaxFatalError ("Error fatal", token);
+	}
+:}
+
+// Declaracion de terminales
+
+terminal Token BEGIN;
+terminal Token BOOLEAN;
+terminal Token CONSTANT;
+terminal Token ELSE;
+terminal Token END;
+terminal Token FALSE;
+terminal Token FUNCTION;
+terminal Token IF;
+terminal Token INTEGER;
+terminal Token IS;
+terminal Token LOOP;
+terminal Token OUT;
+terminal Token PROCEDURE;
+terminal Token PUT_LINE;
+terminal Token RECORD;
+terminal Token RETURN;
+terminal Token THEN;
+terminal Token TRUE;
+terminal Token TYPE;
+terminal Token WHILE;
+terminal Token PAR_L;
+terminal Token PAR_R;
+terminal Token COMMA;
+terminal Token SEMICOLON;
+terminal Token COLON;
+terminal Token MINUS;
+terminal Token BY;
+terminal Token GREATER;
+terminal Token UNEQUAL;
+terminal Token AND;
+terminal Token BECOMES;
+terminal Token DOT;
+terminal Token INT;
+terminal Token STRING;
+terminal Token ID;
+
+
+// Declaracion de no terminales
+// no modificar los propuestos
+
+non terminal  			program;
+non terminal Axiom		axiom;
+non terminal			declarationsBlock;
+non terminal			statementBlock;
+non terminal			constDeclarations;
+non terminal			constDeclaration;
+non terminal			primitiveLiteral;
+non terminal			other3Declarations;
+non terminal			typeDeclarations;
+non terminal			typeDeclaration;
+non terminal			recordElements;
+non terminal			recordElement;
+non terminal			type;
+non terminal			primitiveType;
+non terminal			secondaryType;
+non terminal			other2Declarations;
+non terminal			variableDeclarations;
+non terminal			variableDeclaration;
+non terminal			variables;
+non terminal			otherDeclarations;
+non terminal			functionDeclarations;
+non terminal			functionDeclaration;
+non terminal			function;
+non terminal			parameters;
+non terminal			parameter;
+non terminal			reftype;
+non terminal			procedure;
+non terminal			statements;
+non terminal			statement;
+non terminal			return;
+non terminal			functioncall;
+non terminal			assignation;
+non terminal			control;
+non terminal			ifelse;
+non terminal			loop;
+non terminal			io;
+non terminal			expression;
+non terminal			accessexp;
+non terminal			callparameters;
+
+// Declaracion de relaciones de precedencia
+
+precedence left AND;
+precedence left UNEQUAL;
+precedence left GREATER;
+precedence left MINUS;
+precedence left BY;
+precedence left PAR_L, PAR_R;
+
+// Declaraci�n de reglas de produccion
+
+
+start with program;
+
+program ::= 
+  {: 
+        syntaxErrorManager.syntaxInfo ("Starting parsing..."); 
+   :}
+  axiom:ax
+  {:   		
+  		
+  		syntaxErrorManager.syntaxInfo ("Parsing process ended.");
+   :};
+
+//---------------------------------------------------------------------------------
+//Programa: encabezadoprocedure + declaraciones + instruccionbegin + sentencias + instruccionend
+axiom ::= PROCEDURE ID PAR_L PAR_R IS declarationsBlock BEGIN statementBlock END ID SEMICOLON;
+
+//Declaraciones: nada o declaracióndeconstantes y resto o resto
+declarationsBlock ::= constDeclarations other3Declarations | other3Declarations;
+
+//declaracionconstantes
+constDeclarations ::= constDeclaration | constDeclarations constDeclaration;
+constDeclaration ::= ID COLON CONSTANT BECOMES primitiveLiteral SEMICOLON;
+ primitiveLiteral::= INT | TRUE | FALSE;
+
+//resto: nada o declaracióntipos y resto o resto
+other3Declarations ::= typeDeclarations other2Declarations | other2Declarations;
+
+//declaraciontipos
+typeDeclarations ::= typeDeclaration | typeDeclarations typeDeclaration;
+typeDeclaration ::= TYPE secondaryType IS RECORD recordElements END RECORD SEMICOLON;
+recordElements ::= recordElement | recordElements recordElement;
+recordElement ::= ID COLON type SEMICOLON;
+type ::= primitiveType | secondaryType;
+secondaryType ::= ID;
+primitiveType ::= INTEGER |BOOLEAN;
+
+//resto: nada o declaracionvariables o declaracionfunciones
+other2Declarations ::= variableDeclarations otherDeclarations | otherDeclarations;
+
+//declaracionvariables
+variableDeclarations ::= variableDeclaration | variableDeclarations variableDeclaration;
+variableDeclaration ::= ID COLON type SEMICOLON | variables COLON type SEMICOLON;
+variables ::= ID COMMA ID | ID COMMA variables;
+
+//declaracionfunciones
+otherDeclarations ::= functionDeclarations | ;
+functionDeclarations ::= functionDeclaration | functionDeclarations functionDeclaration;
+functionDeclaration ::= function | procedure;
+
+//declaracionfuncion
+function ::= FUNCTION ID PAR_L PAR_R RETURN primitiveType IS other3Declarations BEGIN statementBlock  END ID SEMICOLON |
+	FUNCTION ID PAR_L parameters PAR_R RETURN primitiveType IS other3Declarations BEGIN statementBlock  END ID SEMICOLON;
+parameters ::= parameter | parameter SEMICOLON parameters;
+parameter ::= ID COLON reftype | variables COLON reftype;
+reftype ::= type | OUT type;
+//declaracionprocedimiento
+procedure ::= PROCEDURE ID PAR_L parameters PAR_R IS other3Declarations BEGIN statementBlock END ID SEMICOLON |
+	PROCEDURE ID PAR_L PAR_R IS other3Declarations BEGIN statementBlock END ID SEMICOLON;
+//	Sentencias : ceroomássentencia
+statementBlock ::= statements | ;
+statements ::= statement | statements statement;
+statement ::= return | assignation | control | io |functioncall SEMICOLON;
+functioncall::= ID PAR_L callparameters PAR_R;
+return ::= RETURN expression SEMICOLON;
+assignation ::= accessexp BECOMES expression SEMICOLON |
+	ID BECOMES expression SEMICOLON;
+control ::= ifelse | loop; 
+ifelse ::= IF expression THEN statementBlock END IF SEMICOLON |
+	IF expression THEN statementBlock ELSE statementBlock END IF SEMICOLON;
+loop ::= WHILE expression LOOP statementBlock END LOOP SEMICOLON;
+io ::= PUT_LINE PAR_L expression PAR_R SEMICOLON |
+	PUT_LINE PAR_L STRING PAR_R SEMICOLON;
+
+//expresiones
+expression ::= primitiveLiteral |
+ID |
+function |
+expression BY expression |
+expression MINUS expression |
+expression GREATER expression |
+expression UNEQUAL expression |
+expression AND expression |
+PAR_L expression PAR_R |
+functioncall |
+accessexp;
+accessexp ::= ID DOT ID | ID DOT accessexp;
+
+//parametrosdellamada: uno o varios separados por comas
+callparameters ::=expression | expression COMMA callparameters;

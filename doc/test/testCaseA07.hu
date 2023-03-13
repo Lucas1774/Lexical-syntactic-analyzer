@@ -1,0 +1,20 @@
+-- Control de flujo WHILE
+
+procedure testCase7 () is
+
+        x: Integer;
+
+begin	
+        Put_line ("CRONTROL FLUJO WHILE");
+	
+	x:=5;
+	
+
+	while x > 1 loop
+
+		Put_line(x);
+		x:=x-1;
+
+	end loop;
+
+end testCase7;

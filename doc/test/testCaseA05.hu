@@ -1,0 +1,35 @@
+-- if sin else, operadores relacionales >  /= logico and
+
+
+procedure testCase05 () is
+
+      	t: Boolean;
+	x: Integer;
+
+begin
+	Put_line("IF OPERADORES");
+	
+	t := True;
+        Put_line("t(cierto):");
+       
+	if t and (True and True) then
+                Put_line("cierto");
+        end if;
+
+	x := 2;	
+	Put_line("x mayor (cierto):");
+	
+	-- if sin parentesis
+	if x > 1 then
+		Put_line("cierto");
+	end if;
+
+	Put_line("x desigual (cierto):");
+
+	-- if con parentesis. Es posible al ser una expresion logica en si misma
+	if (x/=3) then		
+        	Put_line("cierto");
+	end if;
+
+end testCase05;
+

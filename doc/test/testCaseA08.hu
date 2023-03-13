@@ -1,0 +1,40 @@
+procedure ejemplo () is
+-- constantes simbólicas
+MAYORDEEDAD: constant := 17;
+-- tipos globales
+type Tpersona is record
+dni: Integer;
+edad: Integer;
+end record;
+-- variables globales
+persona1 : Tpersona;
+-- subprogramas
+function mayorDeEdad (edad: Integer) return Boolean is
+begin
+if edad>MAYORDEEDAD then
+return True;
+else
+return False;
+end if;
+end mayorDeEdad;
+procedure imprimePersona(dni:Integer; edad:Integer)is
+-- variable local
+debug: Boolean;
+-- procedimiento anidado
+procedure escribe (x: Integer) is
+begin
+Put_line(x);
+end escribe;
+begin -- de imprimePersona
+escribe(dni);
+debug:=True;
+end imprimePersona;
+-- procedimiento principal
+begin
+persona1.dni:=1234;
+persona1.edad:=23;
+if mayorDeEdad(persona1.edad)then
+Put_line("Persona:");
+imprimePersona(persona1.dni, persona1.edad);
+end if;
+end ejemplo;
